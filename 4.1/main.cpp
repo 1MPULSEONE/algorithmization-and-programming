@@ -6,7 +6,7 @@ class Node
 {
 public:
   int data;
-  int minVal; // Текущий минимум в подстеке, начиная с этого узла
+  int minVal;
   Node *next;
 
   Node(int val, int minVal, Node *nextNode) : data(val), minVal(minVal), next(nextNode) {}
@@ -52,7 +52,7 @@ public:
     else
     {
       cerr << "Stack is empty" << endl;
-      return INT_MIN; // Возвращаем минимальное значение для инта в случае пустого стека
+      return INT_MIN;
     }
   }
 
@@ -65,7 +65,7 @@ public:
     else
     {
       cerr << "Stack is empty" << endl;
-      return INT_MIN; // Возвращаем минимальное значение для инта в случае пустого стека
+      return INT_MIN;
     }
   }
 };
@@ -74,14 +74,13 @@ int main()
 {
   MinStack stack;
 
-  // Пример использования
   stack.push(3);
   stack.push(5);
   stack.push(2);
-  cout << stack.getMin() << endl; // Выводит текущий минимум (2)
+  cout << stack.getMin() << endl;
   stack.pop();
-  cout << stack.top() << endl;    // Выводит верхний элемент (5)
-  cout << stack.getMin() << endl; // Выводит текущий минимум (3)
+  cout << stack.top() << endl;
+  cout << stack.getMin() << endl;
 
   return 0;
 }
