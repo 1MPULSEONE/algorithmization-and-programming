@@ -1,91 +1,119 @@
 #include <iostream>
 #include <vector>
+#include <algorithm>
+
 using namespace std;
 
+struct HeapNode
+{
+    int value;
+    size_t operation;
 
-class MaxHeap {
+    HeapNode(int v, size_t op) : value(v), operation(op) {}
+
+    bool operator<(const HeapNode &other) const
+    {
+        return value < other.value || (value == other.value && operation > other.operation);
+    }
+};
+
+class PriorityQueue
+{
 private:
-    vector<int> heap;
+    vector<HeapNode> heap;
+    size_t operationCount = 0;
 
-    void swap(int& a, int& b) {
-        int temp = a;
-        a = b;
-        b = temp;
-    }
-
-    void heapifyUp(int index) {
-        int parent = (index - 1) / 2;
-        if (index > 0 && heap[index] > heap[parent]) {
-            swap(heap[index], heap[parent]);
-            heapifyUp(parent);
+    void heapifyUp(size_t idx)
+    {
+        while (idx > 0)
+        {
+            size_t parent = (idx - 1) / 2;
+            if (heap[idx] < heap[parent])
+                break;
+            swap(heap[idx], heap[parent]);
+            idx = parent;
         }
     }
 
-    void heapifyDown(int index) {
-        int left = 2 * index + 1;
-        int right = 2 * index + 2;
-        int largest = index;
-        if (left < heap.size() && heap[left] > heap[index]) {
-            largest = left;
-        }
-        if (right < heap.size() && heap[right] > heap[largest]) {
-            largest = right;
-        }
-        if (largest != index) {
-            swap(heap[index], heap[largest]);
-            heapifyDown(largest);
+    void heapifyDown(size_t idx)
+    {
+        size_t size = heap.size();
+        while (2 * idx + 1 < size)
+        {
+            size_t left = 2 * idx + 1;
+            size_t right = 2 * idx + 2;
+            size_t j = left;
+            if (right < size && heap[right] < heap[left])
+            {
+                j = right;
+            }
+            if (heap[idx] < heap[j])
+                break;
+            swap(heap[idx], heap[j]);
+            idx = j;
         }
     }
 
 public:
-    void insert(int value) {
-        heap.push_back(value);
+    void enqueue(int value)
+    {
+        operationCount++;
+        heap.push_back(HeapNode(value, operationCount));
         heapifyUp(heap.size() - 1);
     }
 
-    int extractMax() {
-        if (heap.empty()) {
-            throw "Heap is empty";
+    void dequeue_max()
+    {
+        if (heap.empty())
+        {
+            cout << "*" << endl;
+            return;
         }
-        int max = heap[0];
+        cout << heap[0].operation << " " << heap[0].value << endl;
         heap[0] = heap.back();
         heap.pop_back();
-        heapifyDown(0);
-        return max;
+        if (!heap.empty())
+        {
+            heapifyDown(0);
+        }
     }
 
-    void increase(int index, int value) {
-        if (index < 0 || index >= heap.size()) {
-            throw "Invalid index";
+    void increase(size_t operation, int value)
+    {
+        for (auto &node : heap)
+        {
+            if (node.operation == operation)
+            {
+                node.value += value;
+                heapifyUp(&node - &heap[0]);
+                break;
+            }
         }
-        heap[index] += value;
-        heapifyUp(index);
     }
 };
 
-int main() {
-    MaxHeap maxHeap;
+int main()
+{
+    PriorityQueue pq;
     string command;
-    while (cin >> command) {
-        if (command == "enqueue") {
+    while (cin >> command)
+    {
+        if (command == "enqueue")
+        {
             int k;
             cin >> k;
-            maxHeap.insert(k);
-        } else if (command == "dequeue_max") {
-            try {
-                cout << maxHeap.extractMax() << endl;
-            } catch (const char* msg) {
-                cout << "*" << endl;
-            }
-        } else if (command == "inc") {
-            unsigned int i;
+            pq.enqueue(k);
+        }
+        else if (command == "dequeue_max")
+        {
+            pq.dequeue_max();
+        }
+        else if (command == "inc")
+        {
+            size_t i;
             int v;
             cin >> i >> v;
-            try {
-                maxHeap.increase(i-1, v);
-            } catch (const char* msg) {
-                cerr << "Error: " << msg << endl;
-            }
+            pq.increase(i, v);
         }
     }
     return 0;
